@@ -59,21 +59,29 @@ Provincia| Poblacion2015| codigo
          Asturias    |   1051229   |  33
            Avila      |  164925    | 05
 
-###Spain Map by provinces.The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object
-http://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm
+###Spain Map by provinces.The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object.
+
+[censos2011](http://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm)
 
 getinfo.shape(file.choose("SECC_CPV_E_20111101_01_R_INE"))
 file<- readShapeSpatial("SECC_CPV_E_20111101_01_R_INE")
 plot(file)
 
-#por provincias http://www.arcgis.com/home/item.html?id=83d81d9336c745fd839465beab885ab7
+#Shape file by provinces
+[Shape file provinces Spain](http://www.arcgis.com/home/item.html?id=83d81d9336c745fd839465beab885ab7)
+Read the shape file into a Spatialpolygondataframe:
+```r
 provincias <- readShapePoly("Provincias_ETRS89_30N")
-provincias@data # Aquí veo los nombres de provincias y codigo tiene 52 filas 5 columnas
+provincias@data 
 slotNames(provincias)
-class(provincias@data$Codigo)#es factor
+class(provincias@data$Codigo)#is factor
+```
+We have to include the data from our Population data.frame with a merge by the "codigo" column into the Spatialpolygondataframe.
+```r
 newdata <- merge(provincias@data, datos, by.x="Codigo", by.y="codigo")
 provincias@data$Poblacion2015 <- newdata$Poblacion2015
 provincias@data
+```
 #Grafico 
 head(datos)
 library(reshape2)
