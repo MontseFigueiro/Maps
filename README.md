@@ -2,32 +2,46 @@
 ####Shape Files - SpatialPolygonsDataFrame
 
 **Libraries**
+```r
 library(ggmap)
 library(ggplot2)
 library(httr)
 library(maps)
 library(maptools)
 library(sp)
-
+```
 *Using geocode to extract the coordinates from a geolocation*
+```r
 codigos <- geocode("Spain")
 comunidades <- c("Andalucia","Aragon","Asturias","Baleares","Canarias","Cantabria","Castilla La Mancha","Castilla y Leon","Catalunya","Comunidad de Madrid","Comunidad Murciana","Comunidad Valenciana","Extremadura","La Rioja","Galicia","Navarra","Pais Vasco")
 coordccaa <- geocode(comunidades)
 map <- get_map(coordccaa,source="google",zoom=6,maptype = "terrain")
-
+```
 ####Spain population by provinces in 2015
-####File downloaded from INE
+####Data Source INE
 [Data source](http://www.ine.es/jaxiT3/Tabla.htm?t=2852)
+We have a file with two variables (province, population), the encoding in read.xlsx I have put UTF-8 for not to be problems with accents. 
 
+```r
 library(xlsx)
-datos <- read.xlsx("Poblacionprov2015.xls",sheetName = 1,encoding= "UTF-8")
+datos <- read.xlsx("Poblacionprov2015.xls",sheetName = 1,encoding= "UTF-8") 
 class(datos$Poblacion2015)
+```
+ Provincia |Poblacion2015
+ ----------|-------------
+         02 Albacete |       394580
+ 03 Alicante/Alacant  |     1855047
+          04 Almería   |     701211
+      01 Araba/Álava    |    323648
+         33 Asturias     |  1051229
+            05 Ávila      |  164925
+
 datos$codigo <- substr(datos$Provincia,1,2)
 datos$Provincia <- substring(datos$Provincia,4)#elimino los numeros delante del nombre de provincia
 datos$Provincia <-  chartr('áéíóúÁÉÍÓÚñàèìòù','aeiouAEIOUnaeiou',datos$Provincia)#elimino los acentos
 datos$codigo <- as.factor(datos$codigo)
 class(datos$codigo)
-datos
+```
 ###Mapa españa The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object
 http://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm
 library(rgdal)
