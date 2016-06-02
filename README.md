@@ -9,6 +9,7 @@ library(httr)
 library(maps)
 library(maptools)
 library(sp)
+library(rgdal)
 ```
 *Using geocode to extract the coordinates from a geolocation*
 ```r
@@ -27,6 +28,8 @@ library(xlsx)
 datos <- read.xlsx("Poblacionprov2015.xls",sheetName = 1,encoding= "UTF-8") 
 class(datos$Poblacion2015)
 ```
+The data.frame looks like this:
+
  Provincia |Poblacion2015
  ----------|-------------
          02 Albacete |       394580
@@ -36,15 +39,29 @@ class(datos$Poblacion2015)
          33 Asturias     |  1051229
             05 Ávila      |  164925
 
+We extract the first two numbers and place them in a new column (codigo) and delete all accents. 
+Later we will merge to incorporate data to SpatialPolygonDataFrame by this "codigo".
+```r
 datos$codigo <- substr(datos$Provincia,1,2)
-datos$Provincia <- substring(datos$Provincia,4)#elimino los numeros delante del nombre de provincia
-datos$Provincia <-  chartr('áéíóúÁÉÍÓÚñàèìòù','aeiouAEIOUnaeiou',datos$Provincia)#elimino los acentos
+datos$Provincia <- substring(datos$Provincia,4)
+datos$Provincia <-  chartr('áéíóúÁÉÍÓÚñàèìòù','aeiouAEIOUnaeiou',datos$Provincia)
 datos$codigo <- as.factor(datos$codigo)
 class(datos$codigo)
 ```
-###Mapa españa The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object
+Now the data looks like this:
+
+Provincia| Poblacion2015| codigo
+---------|--------------|-------
+   Albacete    |    394580  |   02
+ Alicante/Alacant |      1855047 1    03
+          Almeria  |      701211  |   04
+      Araba/Alava   |     323648   |  01
+         Asturias    |   1051229   |  33
+           Avila      |  164925    | 05
+
+###Spain Map by provinces.The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object
 http://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm
-library(rgdal)
+
 getinfo.shape(file.choose("SECC_CPV_E_20111101_01_R_INE"))
 file<- readShapeSpatial("SECC_CPV_E_20111101_01_R_INE")
 plot(file)
