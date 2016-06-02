@@ -10,6 +10,7 @@ library(maps)
 library(maptools)
 library(sp)
 library(rgdal)
+library(reshape2)
 ```
 *Using geocode to extract the coordinates from a geolocation*
 ```r
@@ -59,15 +60,16 @@ Provincia| Poblacion2015| codigo
          Asturias    |   1051229   |  33
            Avila      |  164925    | 05
 
-###Spain Map by provinces.The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object.
+####Spain Map by provinces.The readShapePoly reads data from a polygon shapefile into a SpatialPolygonsDataFrame object.
 
 [censos2011](http://www.ine.es/censos2011_datos/cen11_datos_resultados_seccen.htm)
-
+```r
 getinfo.shape(file.choose("SECC_CPV_E_20111101_01_R_INE"))
 file<- readShapeSpatial("SECC_CPV_E_20111101_01_R_INE")
 plot(file)
+``` 
+####Download Shapefile by provinces
 
-#Shape file by provinces
 [Shape file provinces Spain](http://www.arcgis.com/home/item.html?id=83d81d9336c745fd839465beab885ab7)
 Read the shape file into a Spatialpolygondataframe:
 ```r
@@ -82,24 +84,25 @@ newdata <- merge(provincias@data, datos, by.x="Codigo", by.y="codigo")
 provincias@data$Poblacion2015 <- newdata$Poblacion2015
 provincias@data
 ```
-#Grafico 
-head(datos)
-library(reshape2)
-
+####Plotting a Barplot with the Population in Spain in 2015
+I want first the provinces with most population
+```r
 datos <- datos[order(-datos$Poblacion2015),]
-datosgraf <- subset(datos,select=-codigo)
-row.names(datosgraf) <- datosgraf$Provincia
-
-
+datosgraf <- subset(datos,select=-codigo)#select all columns unless "codigo"
+row.names(datosgraf) <- datosgraf$Provincia#change rows names
+``` 
+Plot and save in .png file
+```r
 png("PlotPoblacion2015.png")
 d <-  barplot((datosgraf$Poblacion2015)/1000,axes=FALSE,col=rainbow(52),ylab="Población",main="Población Año 2015",ylim=c(0,7000))
-pts <- pretty(datosgraf$Poblacion2015/ 1000)
+pts <- pretty(datosgraf$Poblacion2015/1000)
 par(mar=c(6, 5, 4, 2) + 0.1)
 axis(2, at = pts, labels = paste(pts, "M", sep = ""))
 axis(1, at=d,labels=row.names(datosgraf), las=2,cex.lab=1,font=1,cex.axis=0.8)
 grid()
 dev.off()
-
+```
+![PlotPoblacion2015](https://github.com/MontseFigueiro/Maps/blob/master/PlotPoblacion2015.png)
 
 ##Plot SpacialPolygonDataFrame
 
