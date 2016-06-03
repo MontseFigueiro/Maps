@@ -5,7 +5,6 @@ library(httr)
 #pruebas con geocode, algunas las sitúa en Sudamérica
 codigos <- geocode(c("Spain"))
 map <- get_map(coordccaa,source="google",zoom=6,maptype = "terrain")
-
 comunidades <- c("Andalucia","Aragon","Asturias","Baleares","Canarias","Cantabria","Castilla La Mancha","Castilla y Leon","Catalunya","Comunidad de Madrid","Comunidad Murciana","Comunidad Valenciana","Extremadura","La Rioja","Galicia","Navarra","Pais Vasco")
 comunidades
 coordccaa <- geocode(comunidades)
@@ -26,9 +25,11 @@ library(sp)
 #Fuente INE
 library(xlsx)
 datos <- read.xlsx("Poblacionprov2015.xls",sheetName = 1,encoding= "UTF-8")
+head(datos)
 class(datos$Poblacion2015)
 datos$codigo <- substr(datos$Provincia,1,2)
 datos$Provincia <- substring(datos$Provincia,4)#elimino los numeros delante del nombre de provincia
+
 datos$Provincia <-  chartr('áéíóúÁÉÍÓÚñàèìòù','aeiouAEIOUnaeiou',datos$Provincia)#elimino los acentos
 datos$codigo <- as.factor(datos$codigo)
 class(datos$codigo)
@@ -57,12 +58,12 @@ datosgraf <- subset(datos,select=-codigo)
 row.names(datosgraf) <- datosgraf$Provincia
 
 
-png("PlotPoblacion2015.png")
+png("PlotPoblacion2015.png",width = 900,height = 450)
+par(mar =c(9, 5, 4, 1)) 
 d <-  barplot((datosgraf$Poblacion2015)/1000,axes=FALSE,col=rainbow(52),ylab="Población",main="Población Año 2015",ylim=c(0,7000))
 pts <- pretty(datosgraf$Poblacion2015/ 1000)
-par(mar=c(6, 5, 4, 2) + 0.1)
 axis(2, at = pts, labels = paste(pts, "M", sep = ""))
-axis(1, at=d,labels=row.names(datosgraf), las=2,cex.lab=1,font=1,cex.axis=0.8)
+axis(1, at=d,labels=row.names(datosgraf), las=2,cex.lab=4,cex.axis=0.8)
 grid()
 dev.off()
 
