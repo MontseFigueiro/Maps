@@ -11,6 +11,7 @@ library(maptools)
 library(sp)
 library(rgdal)
 library(reshape2)
+install.packages("RColorBrewer")
 ```
 *Using geocode to extract the coordinates from a geolocation*
 ```r
@@ -93,45 +94,56 @@ row.names(datosgraf) <- datosgraf$Provincia#change rows names
 ``` 
 Plot and save in .png file
 ```r
-png("PlotPoblacion2015.png")
+png("PlotPoblacion2015.png",width = 900,height = 450)
+par(mar =c(9, 5, 4, 1)) 
 d <-  barplot((datosgraf$Poblacion2015)/1000,axes=FALSE,col=rainbow(52),ylab="Población",main="Población Año 2015",ylim=c(0,7000))
-pts <- pretty(datosgraf$Poblacion2015/1000)
-par(mar=c(6, 5, 4, 2) + 0.1)
+pts <- pretty(datosgraf$Poblacion2015/ 1000)
 axis(2, at = pts, labels = paste(pts, "M", sep = ""))
-axis(1, at=d,labels=row.names(datosgraf), las=2,cex.lab=1,font=1,cex.axis=0.8)
+axis(1, at=d,labels=row.names(datosgraf), las=2,cex.lab=4,cex.axis=0.8)
 grid()
 dev.off()
 ```
 ![PlotPoblacion2015](https://github.com/MontseFigueiro/Maps/blob/master/PlotPoblacion2015.png)
 
 ##Plot SpacialPolygonDataFrame
-
+Provincias is a SpatialPolygonsdataframe.
+```r
 plot(provincias,col=provincias$Poblacion2015)
+```
+The spatialpolygonsdatagrame plot looks like this:
 
+![Plotwithoutdata](https://github.com/MontseFigueiro/Maps/blob/master/Plotspatialpolygon.png)
+
+```r
 png("PlotPobl2015.png")
 spplot(provincias,"Poblacion2015",main="Poblacion por Provincia 2015")
 dev.off()
-install.packages("RColorBrewer")
+```
+I have not indicated the colors.
 
-library(RColorBrewer)
-my.cols <- brewer.pal(6, "Blues")
+![Plotwithdata](https://github.com/MontseFigueiro/Maps/blob/master/PlotPobl2015.png)
 
-png("PlotSpainPop2015")
+```r
+png("PlotSpainPop2015.png")
 spplot(provincias,zcol="Poblacion2015",col.regions=colorRampPalette(c("white","grey10"))(20),
        main=list(label="Población por Provincias 2015",cex=2),labels=provincias$Poblacion2015/1000)
 dev.off()
+```
+![Plotwithcolorsanddata](https://github.com/MontseFigueiro/Maps/blob/master/PlotSpainPop2015.png)
 
-##combinar shapefiles con ggmap
-library(ggmap)
-library(rgdal)
-library(ggplot2)
-library(maptools)
- 
+####Combine shapefiles with ggmap
+Get the Spain map from google, we can choose the maptype (hybrid, terrain, satellite, roadmap).The shape file show
+the provinces.
+```r
 map <- get_map("spain",zoom=4,source="google",maptype="hybrid")
 map <- ggmap(map)
 shapefile <- readOGR(".","Provincias_ETRS89_30N")
 shapefile <- spTransform(shapefile,CRS("+proj=longlat +  datum=WGS84"))
 shapefile <- fortify(shapefile)
+```
+```r 
 png("MapSpainshapeggmap.png")
 map+geom_polygon(aes(x=long,y=lat,group=group),fill='grey',color='white',data=shapefile,alpha=0)
 dev.off()
+```
+![Plotshapefileggmap](https://github.com/MontseFigueiro/Maps/blob/master/MapSpainshapeggmap.png)
